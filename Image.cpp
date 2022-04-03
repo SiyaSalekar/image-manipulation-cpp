@@ -11,9 +11,7 @@
 
 bool Image::load(string filename)
 {
-
-    return false;
-
+    return true;
 }
 bool Image::loadRaw(string filename)
 {
