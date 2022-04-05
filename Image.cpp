@@ -103,12 +103,15 @@ void Image::filterBlue()
 void Image::greyScale()
 {
 
-//    for (int i = 0; i < this->w * this->h; ++i) {
-//        this->pixels[i].r = static_cast<unsigned char>((float)this->pixels[i].r*0.5);
-//        this->pixels[i].g = static_cast<unsigned char>((float)this->pixels[i].g*0.5);
-//        this->pixels[i].b = static_cast<unsigned char>((float)this->pixels[i].b*0.5);
-//
-//    }
+    for(int r = 0; r < h; r++)
+    {
+        for(int c = 0;  c< w;c++)
+        {
+            int num = (this->pixels[r*w+c].r + this->pixels[r*w+c].g+this->pixels[r*w+c].b)/3;
+            this->pixels[r*w+c].r=this->pixels[r*w+c].g=this->pixels[r*w+c].b=num;
+        }
+    }
+
 }
 void Image::flipHorizontal()
 {
