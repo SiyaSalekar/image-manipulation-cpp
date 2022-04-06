@@ -20,7 +20,7 @@ bool Image::load(string filename)
         std::string header;
         int w, h, b;
         ifs >> header;
-        if (strcmp(header.c_str(), "P6") != 0) return false;
+        if (strcmp(header.c_str(), "P6") != 0) {return false;}
         ifs >> w >> h >> b;
         this->w = w; this->h = h;
         this->pixels = new Rgb[w * h]; // this is throw an exception if bad_alloc
@@ -42,11 +42,32 @@ bool Image::load(string filename)
     catch (const char *err) {
         fprintf(stderr, "%s\n", err);
         ifs.close();
+        return false;
     }
     return false;
 }
+
+//Gamma encoding
 bool Image::loadRaw(string filename)
 {
+    ifstream in(filename);
+    if(in.good())
+    {
+        in >> w;
+        in >> h;
+
+        for(int i = 0; i < w*h; i++)
+        {
+            float r, g, b;
+            in >> r >>g>>b;
+            this->pixels[i].r = (unsigned char) (r *255);
+            this->pixels[i].g = (unsigned char) (g *255);
+            this->pixels[i].b = (unsigned char) (b *255);
+            cout << r << this->pixels[i].r<< endl;
+        }
+        in.close();
+        return true;
+    }
     return false;
 }
 bool Image::savePPM(string filename)
@@ -115,11 +136,30 @@ void Image::greyScale()
 }
 void Image::flipHorizontal()
 {
+    for(int c = 0;  c< w/2;c++)    //x axis
+    {
+        for(int r = 0; r < h; r++)  //y axis
+            {
 
+                swap(this->pixels[(r * w + c)].r,this->pixels[(r * w + (w - c))].r);
+                swap(this->pixels[(r * w + c)].g,this->pixels[(r * w + (w - c))].g);
+                swap(this->pixels[(r * w + c)].b ,this->pixels[(r * w + (w - c))].b);
+            }
+    }
 }
+
 void Image::flipVertically()
 {
+    for(int x = 0;  x< w;x++)    //x axis
+    {
+        for(int y = 0; y < h/2;y++)  //y axis
+        {
 
+            swap(this->pixels[(x+y*w)].r,this->pixels[x+(h-1-y)*w].r);
+            swap(this->pixels[(x+y*w)].g,this->pixels[x+(h-1-y)*w].g);
+            swap(this->pixels[(x+y*w)].b,this->pixels[x+(h-1-y)*w].b);
+        }
+    }
 
 }
 void Image::AdditionalFunction2()
