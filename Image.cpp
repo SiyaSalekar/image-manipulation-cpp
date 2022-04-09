@@ -163,10 +163,21 @@ void Image::flipVertically()
 
 }
 void Image::AdditionalFunction2()
-//Invert Filter to Images
+//Mirror Transpose Filter to Image
 //makes dark parts lighter and light parts darker.
 //works with other RGB and grayscale filters.
 {
+    //Mirror effect
+    for(int c = 0;  c< w/2;c++)    //x axis
+    {
+        for(int r = 0; r < h; r++)  //y axis
+        {
+            swap(this->pixels[(r * w + c)].r,this->pixels[(r * w + (w - c))].r);
+            swap(this->pixels[(r * w + c)].g,this->pixels[(r * w + (w - c))].g);
+            swap(this->pixels[(r * w + c)].b ,this->pixels[(r * w + (w - c))].b);
+        }
+    }
+    //Transpose/ Invert effect
     int totalPixels = w*h;
     for(int i=0;i<totalPixels;i++){
         this->pixels[i].r = 255 - (int)this->pixels[i].r;
