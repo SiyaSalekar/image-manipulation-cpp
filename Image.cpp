@@ -99,7 +99,7 @@ bool Image::savePPM(string filename)
 
 void Image::filterRed()
 {
-    for (int i = 0; i < this->w * this->h; ++i) {
+    for (int i = 0; i < this->w * this->h; i++) {
         this->pixels[i].g = 0;
         this->pixels[i].b = 0;
     }
@@ -107,7 +107,7 @@ void Image::filterRed()
 }
 void Image::filterGreen()
 {
-    for (int i = 0; i < this->w * this->h; ++i) {
+    for (int i = 0; i < this->w * this->h; i++) {
         this->pixels[i].r = 0;
         this->pixels[i].b = 0;
     }
@@ -115,7 +115,8 @@ void Image::filterGreen()
 }
 void Image::filterBlue()
 {
-    for (int i = 0; i < this->w * this->h; ++i) {
+
+    for (int i = 0; i < this->w * this->h; i++) {
         this->pixels[i].g = 0;
         this->pixels[i].r = 0;
     }
@@ -140,7 +141,6 @@ void Image::flipHorizontal()
     {
         for(int r = 0; r < h; r++)  //y axis
             {
-
                 swap(this->pixels[(r * w + c)].r,this->pixels[(r * w + (w - c))].r);
                 swap(this->pixels[(r * w + c)].g,this->pixels[(r * w + (w - c))].g);
                 swap(this->pixels[(r * w + c)].b ,this->pixels[(r * w + (w - c))].b);
@@ -163,16 +163,43 @@ void Image::flipVertically()
 
 }
 void Image::AdditionalFunction2()
+//Invert Filter to Images
+//makes dark parts lighter and light parts darker.
+//works with other RGB and grayscale filters.
 {
-
+    int totalPixels = w*h;
+    for(int i=0;i<totalPixels;i++){
+        this->pixels[i].r = 255 - (int)this->pixels[i].r;
+        this->pixels[i].g = 255 - (int)this->pixels[i].g;
+        this->pixels[i].b = 255 - (int)this->pixels[i].b;
+    }
 }
 void Image::AdditionalFunction3()
 {
 
 }
-void Image::AdditionalFunction1()
+void Image::AdditionalFunction1(int cx, int cy, int newW, int newH)
+//crop image
 {
+    Image *cropImage = new Image(newW,newH);
+    for(int y=0;y<newH;++y){
+        if((y+cy)>h){
+            break;
+        }
+        for(int x=0;x<newW;x++){
+            if((x+cx)>w){
+                break;
+            }
+            std::memcpy(&cropImage->pixels[(x+y*newW)],&this->pixels[(x+cx+(cy+y)*w)],3);
+        }
+    }
 
+    w = newW;
+    h = newH;
+
+    delete[] this->pixels;
+    this->pixels = cropImage->pixels;
+    cropImage = nullptr;
 }
 
 /* Functions used by the GUI - DO NOT MODIFY */
