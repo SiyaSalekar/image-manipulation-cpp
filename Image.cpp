@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <cstring>
 #include <algorithm>
+#include <valarray>
 #include "Image.h"
 #include "vector"
 
@@ -53,6 +54,30 @@ bool Image::load(string filename)
 //Gamma encoding
 bool Image::loadRaw(string filename)
 {
+//first try with value of gamma=1.069f
+
+//    ifstream in(filename);
+//    if(in.good())
+//    {
+//        in >> w;
+//        in >> h;
+//
+//        for(int i = 0; i < w*h; i++)
+//        {
+//            float r, g, b;
+//            float gamma = 1.069f;
+//            in >> r >> g >> b;
+//            this->pixels[i].r = pow(double(r*255), double(gamma));
+//            this->pixels[i].g = pow(double(g*255), double(gamma));
+//            this->pixels[i].b = pow(double(b*255), double(gamma));
+//        }
+//
+//        in.close();
+//        return true;
+//    }
+//    return false;
+
+//working
     ifstream in(filename);
     if(in.good())
     {
@@ -63,15 +88,15 @@ bool Image::loadRaw(string filename)
         {
             float r, g, b;
             in >> r >>g>>b;
-            this->pixels[i].r = (unsigned char) (r *255);
-            this->pixels[i].g = (unsigned char) (g *255);
-            this->pixels[i].b = (unsigned char) (b *255);
-            cout << r << this->pixels[i].r<< endl;
+            this->pixels[i].r = (unsigned char)(std::max(0.f, std::min(255.f, powf(r, 1/2.2) * 255 + 0.5f)));
+            this->pixels[i].g = (unsigned char)(std::max(0.f, std::min(255.f, powf(g, 1/2.2) * 255 + 0.5f)));
+            this->pixels[i].b = (unsigned char)(std::max(0.f, std::min(255.f, powf(b, 1/2.2) * 255 + 0.5f)));
         }
         in.close();
         return true;
     }
     return false;
+
 }
 bool Image::savePPM(string filename)
 {
