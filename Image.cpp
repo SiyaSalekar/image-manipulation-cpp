@@ -10,6 +10,7 @@
 #include "Image.h"
 #include "vector"
 
+#define BYTE_BOUND(value) value < 0 ? 0 : (value > 255 ? 255 : value)
 
 using namespace std;
 
@@ -190,6 +191,7 @@ void Image::flipVertically()
     }
 
 }
+
 void Image::AdditionalFunction2()
 //Mirror Transpose Filter to Image
 //makes dark parts lighter and light parts darker.
@@ -254,6 +256,98 @@ void Image::AdditionalFunction1(int cx, int cy, int newW, int newH)
     this->pixels = cropImage->pixels;
     cropImage = nullptr;
 }
+
+//guassian blur
+//advanced feature
+//void Image::AdvancedFeature()
+//{
+//    float kernel[7][7] = {
+//            1/140.0,1/140.0,2/140.0,2/140.0,2/140.0,1/140.0,1/140.0,
+//            1/140.0,2/140.0,2/140.0,4/140.0,2/140.0,2/140.0,1/140.0,
+//            2/140.0,2/140.0,4/140.0,8/140.0,4/140.0,2/140.0,2/140.0,
+//            2/140.0,4/140.0,8/140.0,16/140.0,8/140.0,4/140.0,2/140.0,
+//            2/140.0,2/140.0,4/140.0,8/140.0,4/140.0,2/140.0,2/140.0,
+//            1/140.0,1/140.0,2/140.0,2/140.0,2/140.0,1/140.0,1/140.0,
+//            1/140.0,2/140.0,2/140.0,4/140.0,2/140.0,2/140.0,1/140.0,
+//    };
+//
+//   for(int y=0;y<h;y++){
+//       for(int x=0;x<w;x++){
+//           for(int c=0;c<3;c++) {
+//               this->pixels[(y * w + x)*3+c].r = 0.0f;
+//               this->pixels[(y * w + x)*3+c].g = 0.0f;
+//               this->pixels[(y * w + x)*3+c].b = 0.0f;
+//               for (int ky = -3; ky <= 3; ky++) {
+//                   for (int kx = -3; kx <= 3; kx++) {
+//                       this->pixels[(y * w + x)*3+c].r += this->pixels[((y + ky) * w + (x+kx))*3+c].r * kernel[ky + 3][kx + 3];
+//                       this->pixels[(y * w + x)*3+c].g += this->pixels[((y + ky) * w + (x+kx))*3+c].g * kernel[ky + 3][kx + 3];
+//                       this->pixels[(y * w + x)*3+c].b += this->pixels[((y + ky) * w + (x+kx))*3+c].b * kernel[ky + 3][kx + 3];
+//                   }
+//               }
+//           }
+//
+//       }
+//   }
+//}
+
+//text over image
+void Image::AdvancedFeature(const char* txt, const Font& font, int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+
+    size_t len = strlen(txt);
+    SFT_Char c;
+    int32_t dx, dy;
+    uint8_t* dstPx;
+    uint8_t srcPx;
+    uint8_t color[4] = {r, g, b, a};
+
+    for(size_t i = 0;i < len;++i) {
+        if(sft_char(&font.sft, txt[i], &c) != 0) {
+            printf("\e[31m[ERROR] Font is missing character '%c'\e[0m\n", txt[i]);
+            continue;
+        }
+
+        for(uint16_t sy = 0;sy < c.height;++sy) {
+            dy = sy + y + c.y;
+            if(dy < 0) {continue;}
+            else if(dy >= h) {break;}
+            for(uint16_t sx = 0;sx < c.width;++sx) {
+                dx = sx + x + c.x;
+                if(dx < 0) {continue;}
+                else if(dx >= w) {break;}
+                dstPx = &this->pixels[(dx + dy * w)].r;
+                srcPx = c.image[sx + sy * c.width];
+
+                if(srcPx != 0) {
+                    float srcAlpha = (srcPx / 255.f) * (a / 255.f);
+                    float dstAlpha = 3 < 4 ? 1 : dstPx[3] / 255.f;
+                    if(srcAlpha > .99 && dstAlpha > .99) {
+                        memcpy(dstPx, color, 3);
+                    }
+                    else {
+                        float outAlpha = srcAlpha + dstAlpha * (1 - srcAlpha);
+                        if(outAlpha < .01) {
+                            memset(dstPx, 0, 3);
+                        }
+                        else {
+                            for(int chnl = 0;chnl < 3;++chnl) {
+                                dstPx[chnl] = (uint8_t)BYTE_BOUND((color[chnl]/255.f * srcAlpha + dstPx[chnl]/255.f * dstAlpha * (1 - srcAlpha)) / outAlpha * 255.f);
+                            }
+                             {dstPx[3] = (uint8_t)BYTE_BOUND(outAlpha * 255.f);}
+                        }
+                    }
+                }
+            }
+        }
+
+        x += c.advance;
+        free(c.image);
+    }
+
+}
+
+
+
+
 
 /* Functions used by the GUI - DO NOT MODIFY */
 int Image::getWidth()

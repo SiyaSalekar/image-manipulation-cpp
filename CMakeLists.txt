@@ -3,4 +3,4 @@ project(WindowsApplication)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(WindowsApplication main.cpp  UsefulFunctions.cpp Image.cpp)
+add_executable(WindowsApplication main.cpp  UsefulFunctions.cpp Image.cpp schrift.h schrift.cpp)
